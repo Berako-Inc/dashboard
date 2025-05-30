@@ -1,6 +1,7 @@
 import React from 'react';
 import TemperatureChart from './TemperatureChart';
 import HumidityChart from './HumidityChart';
+import AirQualityChart from './AirQualityChart';
 import StatsCard from './StatsCard';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorAlert from './ErrorAlert';
@@ -31,6 +32,12 @@ const StatusIcon = () => (
   </svg>
 );
 
+const AirQualityIcon = () => (
+  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+    <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z" clipRule="evenodd" />
+  </svg>
+);
+
 const Dashboard: React.FC = () => {
   const { 
     sensorData, 
@@ -52,6 +59,13 @@ const Dashboard: React.FC = () => {
     };
   };
 
+  const getAirQualityLevel = (pm2_5: number) => {
+    if (pm2_5 <= 12) return 'Buena';
+    if (pm2_5 <= 35) return 'Moderada';
+    if (pm2_5 <= 55) return 'Insalubre para sensibles';
+    return 'Insalubre';
+  };
+
   // Mostrar loading spinner mientras se cargan los datos iniciales
   if (isLoading && sensorData.length === 0) {
     return <LoadingSpinner fullScreen message="Conectando con sensores IoT..." />;
@@ -65,7 +79,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Dashboard IoT</h1>
-              <p className="text-gray-600 mt-1">Monitoreo de Temperatura y Humedad en Tiempo Real</p>
+              <p className="text-gray-600 mt-1">Monitoreo de Temperatura, Humedad y Calidad del Aire en Tiempo Real</p>
             </div>
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -92,7 +106,7 @@ const Dashboard: React.FC = () => {
 
         {/* Stats Cards */}
         {latestData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <StatsCard
               title="Temperatura Actual"
               value={latestData.temperature}
@@ -108,6 +122,15 @@ const Dashboard: React.FC = () => {
               icon={<HumidityIcon />}
               color="#06b6d4"
               trend={previousData ? calculateTrend(latestData.humidity, previousData.humidity) : undefined}
+            />
+            <StatsCard
+              title="PM2.5"
+              value={latestData.pm2_5}
+              unit="μg/m³"
+              icon={<AirQualityIcon />}
+              color="#f59e0b"
+              trend={previousData ? calculateTrend(latestData.pm2_5, previousData.pm2_5) : undefined}
+              subtitle={getAirQualityLevel(latestData.pm2_5)}
             />
             <StatsCard
               title="Ubicación"
@@ -132,11 +155,16 @@ const Dashboard: React.FC = () => {
           <HumidityChart data={sensorData} />
         </div>
 
+        {/* Air Quality Chart - Full Width */}
+        <div className="mb-8">
+          <AirQualityChart data={sensorData} />
+        </div>
+
         {/* Device Info */}
         {latestData && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Información del Dispositivo</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">Nombre del Sensor</p>
                 <p className="text-lg font-semibold text-gray-900">{latestData.name}</p>
@@ -144,6 +172,10 @@ const Dashboard: React.FC = () => {
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">ID del Dispositivo</p>
                 <p className="text-lg font-semibold text-gray-900 truncate">{latestData.id}</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600">Tipo de Dispositivo</p>
+                <p className="text-lg font-semibold text-gray-900">{latestData.device_type}</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">TTL</p>

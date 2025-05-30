@@ -6,13 +6,14 @@ interface StatsCardProps {
   unit: string;
   icon: React.ReactNode;
   color: string;
+  subtitle?: string;
   trend?: {
     value: number;
     isPositive: boolean;
   };
 }
 
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, unit, icon, color, trend }) => {
+const StatsCard: React.FC<StatsCardProps> = ({ title, value, unit, icon, color, subtitle, trend }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 border-l-4" style={{ borderLeftColor: color }}>
       <div className="flex items-center justify-between">
@@ -22,6 +23,9 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, unit, icon, color, 
             <p className="text-3xl font-bold text-gray-900">{value}</p>
             <span className="ml-1 text-lg text-gray-500">{unit}</span>
           </div>
+          {subtitle && (
+            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+          )}
           {trend && (
             <div className="flex items-center mt-2">
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>

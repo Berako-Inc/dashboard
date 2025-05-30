@@ -69,8 +69,12 @@ class SensorService {
       typeof data.timestamp === 'string' &&
       typeof data.temperature === 'number' &&
       typeof data.humidity === 'number' &&
+      typeof data.pm1_0 === 'number' &&
+      typeof data.pm2_5 === 'number' &&
+      typeof data.pm10 === 'number' &&
       typeof data.name === 'string' &&
       typeof data.location === 'string' &&
+      typeof data.device_type === 'string' &&
       typeof data.status === 'string'
     );
   }
